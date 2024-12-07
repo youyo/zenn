@@ -2,7 +2,7 @@
 title: "FinanScope バックエンドAPIのバージョニング"
 emoji: "⚙️"
 type: "tech"
-topics: ["aws", "apigateway", "lambda", "awscdk", "versioning"]
+topics: ["aws", "apigateway", "lambda", "awscdk", "api"]
 published: false
 ---
 
