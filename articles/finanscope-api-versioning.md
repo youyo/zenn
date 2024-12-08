@@ -3,7 +3,8 @@ title: "FinanScope バックエンドAPIのバージョニング"
 emoji: "⚙️"
 type: "tech"
 topics: ["aws", "apigateway", "lambda", "awscdk", "api"]
-published: false
+published: true
+published_at: "2024-12-09 00:00"
 ---
 
 この記事は[デジタルキューブグループ エンジニアチームアドベントカレンダー 2024](https://qiita.com/advent-calendar/2024/digitalcube-heptagon) 12 月 9 日の記事です。
@@ -17,6 +18,7 @@ API のバージョニングにはいくつかの方法がありますが、代�
 - ヘッダベース
 - クエリパラメータベース
 
+[FinanScope](https://finanscope.jp/)のバックエンド API ではこのパスベースのバージョニングを採用しています。
 パスベースのバージョニングは以下のようにパスにバージョンを含める方法です。
 
 ```
@@ -24,8 +26,7 @@ API のバージョニングにはいくつかの方法がありますが、代�
 /v2/users
 ```
 
-[FinanScope](https://finanscope.jp/)のバックエンド API ではこのパスベースのバージョニングを採用しています。
-また、サーバーレスアーキテクチャを採用しており、API Gateway / Lambda を AWS CDK を使ってコード管理しています。この記事ではどのように API バージョニングを実現しているかを紹介します。
+また、サーバーレスアーキテクチャを採用しており、[API Gateway](https://docs.aws.amazon.com/ja_jp/apigateway/latest/developerguide/welcome.html) / [Lambda](https://docs.aws.amazon.com/ja_jp/lambda/latest/dg/welcome.html) を [AWS CDK](https://docs.aws.amazon.com/ja_jp/cdk/v2/guide/home.html) を使ってコード管理しています。この記事ではどのように API バージョニングを実現しているかを紹介します。
 
 ## どのようにバージョニングするか？
 
@@ -159,7 +160,8 @@ jobs:
 バージョン毎に API Gateway を作成すると、それぞれの API Gateway に異なるドメインが割り当てられます。
 [先ほどの資料](https://speakerdeck.com/gawa/develop-effective-web-api-versioning?slide=22)ではカスタムドメインを使ってバージョンごとの API Gateway を 1 つの独自ドメインにまとめる方法が紹介されています。
 
-FinanScope ではカスタムドメインは利用せず CloudFront を使って一つにまとめています。
+FinanScope では API Gateway のカスタムドメイン機能は利用せず [CloudFront](https://docs.aws.amazon.com/ja_jp/AmazonCloudFront/latest/DeveloperGuide/Introduction.html) を使って一つにまとめています。
+API Gateway を CloudFront のオリジンとして指定し、CloudFront でバージョンごとに異なるビヘイビアを設定することで複数の API Gateway を 1 つの独自ドメインにまとめています。
 API 以外のサブシステムでも CloudFront を利用しており、CDK のコード資産を使いまわせて都合がよかったということと、将来的にオリジンとして API Gateway 以外のリソースも含める可能性があるかなと考えたため CloudFront を採用しました。
 
 CloudFront ディストリビューションはバージョン単位で増えてしまっては困るので、別リポジトリ/別スタックで管理しています。
