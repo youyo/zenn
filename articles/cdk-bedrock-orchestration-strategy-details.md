@@ -3,7 +3,7 @@ title: "Agents for Amazon Bedrock の Orchestration StrategyをAWS CDKで設定�
 emoji: "⚙️"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["aws", "awscdk", "bedrock"]
-published: false
+published: true
 ---
 
 ## Agents for Amazon Bedrock とは
