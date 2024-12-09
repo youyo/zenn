@@ -6,7 +6,7 @@ preview:
 
 ## article
 article:
-	npx zenn new:article
+	npx zenn new:article --type tech --emoji ⚙️
 
 ## help
 help:
