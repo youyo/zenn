@@ -6,6 +6,10 @@ topics: ["aws", "awscdk", "bedrock"]
 published: true
 ---
 
+この記事は[デジタルキューブグループ エンジニアチームアドベントカレンダー 2024](https://qiita.com/advent-calendar/2024/digitalcube-heptagon) 12 月 6 日の記事です。
+
+---
+
 ## Agents for Amazon Bedrock とは
 
 Amazon Bedrock エージェントは、基盤モデル(FM)を強化し、API や外部データソースと連携させることで複雑なタスクを自動化するサーバーレスコンポーネントです。ユーザーのリクエストを理解し、適切なツールを呼び出し、FM を活用して推論や計画を行い、最終的な結果を生成します。
