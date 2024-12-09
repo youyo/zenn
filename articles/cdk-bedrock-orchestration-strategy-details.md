@@ -1,12 +1,19 @@
 ---
-title: "Amazon Bedrock Agent Orchestration StrategyをAWS CDKで設定する"
+title: "Agents for Amazon Bedrock の Orchestration StrategyをAWS CDKで設定する"
 emoji: "⚙️"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["aws", "awscdk", "bedrock"]
 published: false
 ---
 
-## Amazon Bedrock には **詳細プロンプト** という項目があります
+## Agents for Amazon Bedrock とは
+
+Amazon Bedrock エージェントは、基盤モデル(FM)を強化し、API や外部データソースと連携させることで複雑なタスクを自動化するサーバーレスコンポーネントです。ユーザーのリクエストを理解し、適切なツールを呼び出し、FM を活用して推論や計画を行い、最終的な結果を生成します。
+推論の過程はマネジメントコンソールのトレース欄から確認することもできます。
+
+https://aws.amazon.com/jp/bedrock/agents/
+
+## Agents for Amazon Bedrock には **詳細プロンプト** という項目があります
 
 ![](/images/cdk-bedrock-orchestration-strategy-details/2.png)
 
