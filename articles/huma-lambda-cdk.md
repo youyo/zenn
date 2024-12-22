@@ -3,7 +3,7 @@ title: "LambdaWebAdapterを使ってhumaをLambdaで動かす"
 emoji: "⚙️"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: [awscdk, aws, lambda, go]
-published: false
+published: true
 ---
 
 huma が勢いがあるそうですね。
