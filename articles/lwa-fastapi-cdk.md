@@ -3,7 +3,7 @@ title: "Lambda Web AdapterでFastAPIを動かす"
 emoji: "⚙️"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: [awscdk, aws, lambda, fastapi, python]
-published: false
+published: true
 ---
 
 Lambda Web Adapter(LWA) を使って FastAPI を動かしてみます。
