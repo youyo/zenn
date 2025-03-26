@@ -3,7 +3,7 @@ title: "sgmap: AWSセキュリティグループの可視化ツール"
 emoji: "🔒"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["aws", "security", "python", "cli", "可視化"]
-published: false
+published: true
 ---
 
 ## はじめに
