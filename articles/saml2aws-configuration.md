@@ -2,25 +2,25 @@
 title: "saml2aws: AWSの認証を簡単に行うツール"
 emoji: "🔐"
 type: "tech" # tech: 技術記事 / idea: アイデア
-topics: ["aws", "saml", "cli", "認証"]
-published: true
+topics: ["aws", "saml", "cli"]
+published: false
 ---
 
 ## はじめに
 
-AWSアカウントにアクセスする際、特に企業環境ではSAML認証を使用することが多いです。ブラウザを開いてIDプロバイダーにログインし、ロールを選択するというプロセスは、頻繁に行うには少し面倒です。
+AWS アカウントにアクセスする際、特に企業環境では SAML 認証を使用することが多いです。ブラウザを開いて ID プロバイダーにログインし、ロールを選択するというプロセスは、頻繁に行うには少し面倒です。
 
-この問題を解決するのが「saml2aws」です。saml2awsを使用すると、コマンドラインからAWS SAMLベースのIDプロバイダーに対して認証を行い、一時的な認証情報を取得することができます。
+この問題を解決するのが「saml2aws」です。saml2aws を使用すると、コマンドラインから AWS SAML ベースの ID プロバイダーに対して認証を行い、一時的な認証情報を取得することができます。
 
-この記事では、AWS IAM Identity Centerのアプリケーション連携先へのSAMLログインを前提として、saml2awsの基本的な設定と使用方法を紹介します。
+この記事では、AWS IAM Identity Center のアプリケーション連携先への SAML ログインを前提として、saml2aws の基本的な設定と使用方法を紹介します。
 
-## saml2awsとは
+## saml2aws とは
 
-saml2awsは、SAML 2.0に対応したIDプロバイダーを使用してAWSへのフェデレーション認証を簡素化するためのCLIツールです。複数のAWSアカウントやロールを効率的に切り替えることができ、AWS CLIやSDKと組み合わせて使用できます。
+saml2aws は、SAML 2.0 に対応した ID プロバイダーを使用して AWS へのフェデレーション認証を簡素化するための CLI ツールです。複数の AWS アカウントやロールを効率的に切り替えることができ、AWS CLI や SDK と組み合わせて使用できます。
 
 ## インストール方法
 
-saml2awsは以下のコマンドでインストールできます（macOSの例）：
+saml2aws は以下のコマンドでインストールできます（macOS の例）：
 
 ```bash
 brew install saml2aws
@@ -30,7 +30,7 @@ brew install saml2aws
 
 ## 基本的な設定
 
-saml2awsを使用するには、最小限の設定が必要です。
+saml2aws を使用するには、最小限の設定が必要です。
 
 ### シェル設定
 
@@ -45,9 +45,10 @@ export SAML2AWS_USERNAME='your-email@example.com'
 ```
 
 この例では:
+
 - シェル補完を有効にしています
-- IdPプロバイダーとして「Browser」を使用（ブラウザベースの認証）
-- MFAを「Auto」に設定
+- IdP プロバイダーとして「Browser」を使用（ブラウザベースの認証）
+- MFA を「Auto」に設定
 - ユーザー名（メールアドレス）を設定
 
 ### プロファイル設定
@@ -63,19 +64,20 @@ headless                = true
 ```
 
 この例では:
+
 - プロファイル名を指定
-- 対応するAWSプロファイル名を指定
-- IDプロバイダーのURLを指定
+- 対応する AWS プロファイル名を指定
+- ID プロバイダーの URL を指定
 - ヘッドレスモードを有効化（バックグラウンドでブラウザを操作）
 
 ## 使用方法
 
 ### 初回使用時の設定
 
-saml2awsを初めて使用する場合は、ブラウザドライバーをダウンロードする必要があります：
+saml2aws を初めて使用する場合は、ブラウザドライバーをダウンロードする必要があります：
 
 ```bash
-saml2aws login -a profile-name --skip-prompt --download-browser-driver
+saml2aws login -a profile-name --download-browser-driver
 ```
 
 このオプションは初回のみ必要で、ブラウザ自動操作に必要なドライバーをダウンロードします。
@@ -88,9 +90,10 @@ saml2aws login -a profile-name --skip-prompt --download-browser-driver
 saml2aws login -a profile-name --skip-prompt
 ```
 
-このコマンドを実行すると、ブラウザが開き、IDプロバイダーのログインページが表示されます。認証が完了すると、AWS一時認証情報が取得され、指定したプロファイルに保存されます。
+このコマンドを実行すると、ブラウザが開き、ID プロバイダーのログインページが表示されます。認証が完了すると、AWS 一時認証情報が取得され、指定したプロファイルに保存されます。
 
 出力例：
+
 ```
 Using IdP Account profile-name to access Browser https://your-idp-url.com/...
 Authenticating as your-email@example.com ...
@@ -107,36 +110,21 @@ Note that it will expire at YYYY-MM-DD HH:MM:SS +0900 JST
 To use this credential, call the AWS CLI with the --profile option (e.g. aws --profile profile-name ec2 describe-instances).
 ```
 
-### 高速ログイン
+### AWS コンソールを開く
 
-オプションを追加してログイン処理をより高速かつ静かに行うことができます：
-
-```bash
-saml2aws login -a profile-name --skip-prompt --quiet --force
-```
-
-このコマンドは出力を抑制し、既存の認証情報を上書きします。実行時間の例：
-
-```bash
-$ time saml2aws login -a profile-name --skip-prompt --quiet --force
-saml2aws login -a profile-name --skip-prompt --quiet --force  1.34s user 0.41s system 50% cpu 3.470 total
-```
-
-### AWSコンソールを開く
-
-AWS管理コンソールをブラウザで開くには：
+AWS 管理コンソールをブラウザで開くには：
 
 ```bash
 saml2aws console -a profile-name --skip-prompt --quiet
 ```
 
-このコマンドは一時認証情報を使用してAWS管理コンソールのセッションURLを生成し、ブラウザで開きます。
+このコマンドは一時認証情報を使用して AWS 管理コンソールのセッション URL を生成し、ブラウザで開きます。
 
 ## まとめ
 
-saml2awsを使用することで、AWSの認証プロセスを簡素化し、効率的に作業することができます。特に複数のAWSアカウントやロールを使い分ける場合に便利です。
+saml2aws を使用することで、AWS の認証プロセスを簡素化し、効率的に作業することができます。特に複数の AWS アカウントやロールを使い分ける場合に便利です。
 
-基本的な設定さえ済ませば、数秒でAWS CLIの認証が完了し、すぐに作業を開始できます。また、GUI操作が必要な場合も簡単にAWS管理コンソールを開くことができます。
+基本的な設定さえ済ませば、数秒で AWS CLI の認証が完了し、すぐに作業を開始できます。また、GUI 操作が必要な場合も簡単に AWS 管理コンソールを開くことができます。
 
 ## 参考リンク
 
