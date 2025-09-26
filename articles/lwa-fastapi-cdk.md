@@ -40,7 +40,7 @@ const func = new lambda.Function(this, "Func", {
     ),
   ],
   environment: {
-    PYTHONPATH: "/opt/python",
+    PYTHONPATH: "/var/runtime:/opt/python",
     PORT: "8000",
     AWS_LAMBDA_EXEC_WRAPPER: "/opt/bootstrap",
   },
@@ -104,7 +104,7 @@ python \
 
 ```typescript
   environment: {
-    PYTHONPATH: "/opt/python",
+    PYTHONPATH: "/var/runtime:/opt/python",
     PORT: "8000",
     AWS_LAMBDA_EXEC_WRAPPER: "/opt/bootstrap",
   },
