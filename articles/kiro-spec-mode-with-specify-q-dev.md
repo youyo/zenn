@@ -3,7 +3,7 @@ title: "Amazon Q Developer + Spec KitでKiroのSpec Mode的な開発をしてみ
 emoji: "🚀"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["ai", "kiro", "speckit", "amazonq"]
-published: false
+published: true
 ---
 
 :::message
