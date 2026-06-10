@@ -12,20 +12,45 @@ https://github.com/youyo/aws-mcp-gateway
 
 ## mcp-proxy-for-aws を使わない理由
 
-MCP 経由で AWS にアクセスする方法としてはAWS MCP Serverと [mcp-proxy-for-aws](https://github.com/aws/mcp-proxy-for-aws) があります。ローカルで `uvx mcp-proxy-for-aws` するだけで動くので、個人で使うには十分です。
+MCP 経由で AWS にアクセスするには、AWS MCP Server にローカルから接続する [mcp-proxy-for-aws](https://github.com/aws/mcp-proxy-for-aws) を使います。ローカルで `uvx mcp-proxy-for-aws` するだけで動くので、個人で使うには十分です。
 
-ただそのためにはローカルで `~/.aws/credentials` , `~/.aws/config` の設定が必要です。
-できればローカルに認証情報を持たせずに済ませられないか？と考え、Remote MCP サーバーとして動かしてゲートウェイ側で一元管理できないかとというのを作ってみたものになります。  
-また現在会社で利用しているClaudeTeamではその他サービスのremote-mcp-serverを含めて全てEntraIDによる認証に統一しています。AWSへのアクセスについても他と同じように統一したかったというのもあります。
+ただそのためにはローカルに `~/.aws/credentials` や `~/.aws/config` の設定が必要です。
+できればローカルに認証情報を持たせずに済ませられないか？と考え、Remote MCP サーバーとして動かしてゲートウェイ側で一元管理する形にしてみました。  
+また、現在会社で利用している Claude Team では、その他サービスの Remote MCP サーバーを含めてすべて EntraID による認証に統一しています。AWS へのアクセスについても他と同じように統一したかったというのもあります。
 
 ## aws-mcp-gateway とは
 
 一言で言うと「OIDC 認証付き AWS MCP Server リバースプロキシ」です。
 
-- EntraIDなどの OIDC プロバイダーで認証
+- EntraID などの OIDC プロバイダーで認証
 - 認証済みリクエストに AWS SigV4 署名を付与して AWS MCP Server に中継
 - per-user のクレデンシャル管理（CloudTrail 追跡対応）
 - パスルーティングでマルチアカウント対応
+
+全体構成はこうなっています。
+
+```mermaid
+graph LR
+    C["MCP クライアント<br/>(Claude Code など)"]
+    IDP["EntraID<br/>(OIDC プロバイダー)"]
+
+    subgraph GWA["ゲートウェイ AWS アカウント"]
+        GW["aws-mcp-gateway<br/>(Lambda Function URL)"]
+    end
+
+    MCP["AWS MCP Server<br/>(AWS マネージド)"]
+
+    subgraph TA["ターゲット AWS アカウント"]
+        API["AWS API"]
+    end
+
+    C -- "Bearer Token" --> GW
+    GW -. "OIDC 認証" .-> IDP
+    GW -- "SigV4 署名して中継" --> MCP
+    MCP -- "call_aws" --> API
+```
+
+クライアントから見えるのはゲートウェイの URL だけです。AWS のクレデンシャルはゲートウェイより先にしか存在しません。
 
 MCP プロトコルの中身は一切パースしていません。`httputil.ReverseProxy` に HTTP レベルの転送を任せているだけです。
 
@@ -33,7 +58,12 @@ MCP プロトコルの中身は一切パースしていません。`httputil.Rev
 
 ### EntraID OIDC → Web Identity Federation → クロスアカウント AssumeRole
 
-`IAM_MODE=federated` の場合のフロー全体です。
+`IAM_MODE=federated` に AssumeRole パスルーティングを組み合わせた場合のフロー全体です。やっていることは 4 ステップです。
+
+1. EntraID で OIDC 認証して Bearer Token を発行（初回のみ）
+2. EntraID の ID Token で `AssumeRoleWithWebIdentity` し、ユーザーごとの一時クレデンシャルを取得
+3. パスで指定されたターゲットアカウントのロールに `AssumeRole`
+4. ターゲットアカウントのクレデンシャルで SigV4 署名して AWS MCP Server に中継
 
 ```mermaid
 sequenceDiagram
@@ -77,7 +107,9 @@ sequenceDiagram
 
 EntraID が発行した ID Token をそのまま STS に渡して Web Identity Federation で認証します。社内の認証基盤をそのまま使えるのがいいところです。
 
-`_meta.AWS_REGION` の注入は AWS MCP Server がリージョン指定を受け取るために必要です。クライアントが指定している場合はそちらを優先します。ボディを全読しているのは SigV4 署名のペイロードハッシュ計算のためで、最大 6 MiB に制限しています（Lambda Function URL の上限に合わせています）。
+`_meta.AWS_REGION` の注入は AWS MCP Server がリージョン指定を受け取るために必要です。クライアントが指定している場合はそちらを優先します。
+
+リクエストボディを全て読み込んでいるのは SigV4 署名のペイロードハッシュ計算のためです。サイズは最大 6 MiB に制限しています（Lambda Function URL の上限に合わせています）。
 
 ### CloudTrail でのユーザー追跡
 
@@ -149,4 +181,4 @@ CDK のコードを同梱しています：
 - CloudTrail でユーザー単位の追跡が可能（RoleSessionName に email を埋め込み）
 - パスルーティングで複数 AWS アカウントをシンプルに管理できる
 
-AWSアカウント数分のMCPサーバー設定が増えてしまうというのがいまいちな部分ですが、MCPのLazy Loadingがあるのでギリギリ許容範囲かなと思っています。この辺の改善策が出来たら更新しようと思います🙂
+AWS アカウント数分の MCP サーバー設定が増えてしまうというのがいまいちな部分ですが、MCP の Lazy Loading があるのでギリギリ許容範囲かなと思っています。この辺の改善策ができたら更新しようと思います🙂
